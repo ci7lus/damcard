@@ -14,7 +14,7 @@ declare global {
   }
 }
 
-const App = () => {
+const App: React.FC<{}> = () => {
   const [loading, setLoading] = useState(true)
   const [height, setHeight] = useState("100vh")
   const updateHeight = () => {
@@ -164,9 +164,10 @@ const App = () => {
   )
 }
 
-ReactDOM.render(<App />, document.getElementById("app"))
-
-const PopupView = ({ dam, dists }: { dam: DAM; dists: DIST[] }) => {
+const PopupView: React.FC<{
+  dam: DAM
+  dists: DIST[]
+}> = ({ dam, dists }: { dam: DAM; dists: DIST[] }) => {
   return (
     <div className="border-gray-200 border-2 p-1">
       <div className="text-base">{dam.name}</div>
@@ -241,3 +242,5 @@ const PopupView = ({ dam, dists }: { dam: DAM; dists: DIST[] }) => {
     </div>
   )
 }
+
+ReactDOM.render(<App />, document.getElementById("app"))
