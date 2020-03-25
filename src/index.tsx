@@ -74,7 +74,8 @@ const App = () => {
 
       // 再描画
       const rerender = async () => {
-        const markerSize = Math.pow(map.getZoom(), 2) / 4
+        const zoom = map.getZoom()
+        const markerSize = Math.pow(zoom, 2) / 4
         const bounds = map.getBounds()!
         const sw = bounds.getSouthWest()
         const ne = bounds.getNorthEast()
@@ -95,7 +96,10 @@ const App = () => {
           dam.marker.setMap(map)
           dam.marker.setIcon({
             url: kurobe_dam,
-            scaledSize: new google.maps.Size(markerSize, markerSize),
+            scaledSize: new google.maps.Size(
+              markerSize + zoom / 2,
+              markerSize + zoom / 2
+            ),
           })
         }
         loaded_dams
