@@ -44,10 +44,10 @@ const App = () => {
         const sw = bounds.getSouthWest()
         const ne = bounds.getNorthEast()
 
-        const min_lat = sw.lat()
-        const max_lat = ne.lat()
-        const min_lng = sw.lng()
-        const max_lng = ne.lng()
+        const min_lat = sw.lat() - 1
+        const max_lat = ne.lat() + 1
+        const min_lng = sw.lng() - 1
+        const max_lng = ne.lng() + 1
 
         const target_dams = loaded_dams.filter(
           (dam) =>
