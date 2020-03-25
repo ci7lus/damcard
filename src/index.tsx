@@ -2,8 +2,8 @@ import React, { useEffect } from "react"
 import ReactDOM from "react-dom"
 import { GOOGLE_API_KEY } from "./config"
 import { DAM } from "./types"
-const dams_path = require("./assets/dams.json")
-const kurobe_dam = require("./assets/kurobe_dam_icon.png")
+const dams_path = require("./assets/externals/dams.json")
+const kurobe_dam = require("./assets/images/kurobe_dam.png")
 
 declare global {
   interface Window {
@@ -106,7 +106,7 @@ const App = () => {
   return (
     <div className="min-h-screen w-full flex flex-col">
       <div className="flex-1" id="map"></div>
-      <div className="text-xs text-right absolute left-0 bottom-0 mb-8 ml-2 bg-gray-100">
+      <div className="text-xs text-right absolute left-0 bottom-0 mb-6 ml-1 bg-gray-100">
         <div>
           データソース:
           <a href="https://damcard.net/" target="_blank" rel="noopener">
