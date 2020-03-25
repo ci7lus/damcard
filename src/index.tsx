@@ -73,7 +73,7 @@ const App = () => {
 
       // 再描画
       const rerender = async () => {
-        const markerSize = map.getZoom() * 3
+        const markerSize = Math.pow(map.getZoom(), 2) / 4
         const bounds = map.getBounds()!
         const sw = bounds.getSouthWest()
         const ne = bounds.getNorthEast()
@@ -188,9 +188,9 @@ const App = () => {
       <div className="absolute right-0 top-0 m-8 pointer-events-none">
         <ScaleLoader color={"#4fd1c5"} loading={loading} />
       </div>
-      <div className="text-xs text-right absolute left-0 bottom-0 mb-6 ml-1 bg-gray-100 pointer-events-none">
+      <div className="text-xs text-right absolute left-0 bottom-0 mb-6 ml-1 bg-gray-100">
         <div>
-          データソース:
+          データソース:&nbsp;
           <a href="https://damcard.net/" target="_blank" rel="noopener">
             ダムこれ！
           </a>
