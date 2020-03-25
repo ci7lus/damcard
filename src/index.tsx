@@ -201,8 +201,10 @@ const PopupView: React.FC<{
           {dam.is_distance && <li>⚠️ ダムと配布場所が離れてます</li>}
         </ul>
         {dists.map((dist) => (
-          <div className="border-gray-200 border-2 p-1 mb-1" key={dist.id}>
-            <div className="text-base">{dist.name}</div>
+          <details className="border-gray-200 border-2 p-1 mb-1" key={dist.id}>
+            <summary>
+              <span className="text-base">{dist.name}</span>
+            </summary>
             <div className="border-gray-200 border-2 my-1" />
             <div className="leading-relaxed text-sm">
               <ul className="list-disc list-inside mb-1 ml-2">
@@ -236,7 +238,7 @@ const PopupView: React.FC<{
                 {dist.description}
               </div>
             </div>
-          </div>
+          </details>
         ))}
       </div>
     </div>
