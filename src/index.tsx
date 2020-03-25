@@ -22,6 +22,9 @@ const App: React.FC<{}> = () => {
   }
   useEffect(() => {
     const initialize = async () => {
+      if ("serviceWorker" in navigator) {
+        const sw = await navigator.serviceWorker.register("/sw.js")
+      }
       // Google Map バンドルのロード
       await new Promise((res, rej) => {
         const script = document.createElement("script")
