@@ -3932,6 +3932,13 @@ parcel-plugin-json-url-loader@^0.1.2:
   resolved "https://registry.yarnpkg.com/parcel-plugin-json-url-loader/-/parcel-plugin-json-url-loader-0.1.2.tgz#41f365607b8fed4990f773779646ddcce413678b"
   integrity sha512-O3dJMS1DfiTEfYR2Y+Owc3xrut/ekc6dR1o6gjYfOH1MoPSTJDagWsaq2D0jBHAOwkYNAf4nEipkXaVYDihEtg==
 
+parcel-plugin-purgecss@^2.1.3:
+  version "2.1.3"
+  resolved "https://registry.yarnpkg.com/parcel-plugin-purgecss/-/parcel-plugin-purgecss-2.1.3.tgz#b9644b26e1b719bfd537a7f92e512ab165d8b30f"
+  integrity sha512-PijpHRxXZyQmkdRSs2B/fW/Cs2+CDvF5F2wxu+dlLwix+/MQJ+y8rjeQyDNXPWVks++nRrnfMDtKljJpLb7xjg==
+  dependencies:
+    purgecss "^1.3.0"
+
 parse-asn1@^5.0.0:
   version "5.1.5"
   resolved "https://registry.yarnpkg.com/parse-asn1/-/parse-asn1-5.1.5.tgz#003271343da58dc94cace494faef3d2147ecea0e"
@@ -4516,7 +4523,7 @@ punycode@^2.1.0, punycode@^2.1.1:
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-2.1.1.tgz#b58b010ac40c22c5657616c8d2c2c02c7bf479ec"
   integrity sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==
 
-purgecss@^1.4.0:
+purgecss@^1.3.0, purgecss@^1.4.0:
   version "1.4.2"
   resolved "https://registry.yarnpkg.com/purgecss/-/purgecss-1.4.2.tgz#67ab50cb4f5c163fcefde56002467c974e577f41"
   integrity sha512-hkOreFTgiyMHMmC2BxzdIw5DuC6kxAbP/gGOGd3MEsF3+5m69rIvUEPaxrnoUtfODTFKe9hcXjGwC6jcjoyhOw==
