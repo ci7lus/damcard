@@ -34,6 +34,7 @@ const App = () => {
       const map = new google.maps.Map(document.getElementById("map")!, {
         center: { lat: 36.56678370175526, lng: 137.666148 },
         zoom: 10,
+        gestureHandling: "greedy",
       })
 
       const loaded_dams: (DAM & { marker: google.maps.Marker })[] = []
