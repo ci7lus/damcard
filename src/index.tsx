@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react"
 import ReactDOM from "react-dom"
+import { renderToStaticMarkup } from "react-dom/server"
 import { GOOGLE_API_KEY } from "./config"
 import { DAM, DIST } from "./types"
 import { ScaleLoader } from "react-spinners"
@@ -133,10 +134,19 @@ const App = () => {
             lng: dam.lng,
           },
           title: dam.name,
+          zIndex: 50,
         })
         marker.addListener("click", () => {
           infoWindow.setContent(
-            `<div class="text-base">ダム: ${dam.name}</div>`
+            renderToStaticMarkup(
+              <PopupView
+                category={"ダム"}
+                name={dam.name}
+                url={dam.url}
+                is_distance={dam.is_distance}
+                is_close={dam.is_close}
+              />
+            )
           )
           infoWindow.open(map, marker)
         })
@@ -154,10 +164,21 @@ const App = () => {
             lng: dist.lng,
           },
           title: dist.name,
+          zIndex: 100,
         })
         marker.addListener("click", () => {
+          const dam = dams.find((dam) => dam.id === dist.dam_id)
           infoWindow.setContent(
-            `<div class="text-base">配布所: ${dist.name}</div>`
+            renderToStaticMarkup(
+              <PopupView
+                category={"配布所"}
+                name={dist.name}
+                description={dist.address}
+                is_multi={dist.is_multi}
+                is_weekend={dist.is_weekend}
+                dam_name={dam?.name}
+              />
+            )
           )
           infoWindow.open(map, marker)
         })
@@ -201,3 +222,58 @@ const App = () => {
 }
 
 ReactDOM.render(<App />, document.getElementById("app"))
+
+const PopupView = ({
+  category,
+  name,
+  dam_name,
+  description,
+  url,
+  is_close,
+  is_distance,
+  is_multi,
+  is_weekend,
+}: {
+  category: string
+  name: string
+  dam_name?: string
+  description?: string | null
+  url?: string | null
+  is_close?: boolean
+  is_distance?: boolean
+  is_multi?: boolean
+  is_weekend?: boolean
+}) => {
+  return (
+    <div className="border-gray-200 border-2 p-1">
+      <div className="text-base">
+        {category}: {name}
+      </div>
+      <div className="border-gray-200 border-2 my-1" />
+      <div className="leading-relaxed text-sm">
+        <ul className="list-disc list-inside mb-1 ml-2">
+          {url && (
+            <li>
+              <a
+                className="text-teal-600"
+                href={url}
+                target="_blank"
+                rel="noopener"
+              >
+                ウェブサイト
+              </a>
+            </li>
+          )}
+          {dam_name && <li>ダム: {dam_name}</li>}
+          {is_close && <li>配布終了: {is_close ? "はい" : "いいえ"}</li>}
+          {is_multi && <li>複数のカードを配布</li>}
+          {is_distance && <li>ダムと配布場所が離れてます</li>}
+          {is_weekend && <li>土日祝日のいずれかに配布</li>}
+        </ul>
+        <div className="whitespace-pre break-words overflow-auto">
+          {description?.replace(/\n\n/g, "\n")}
+        </div>
+      </div>
+    </div>
+  )
+}
