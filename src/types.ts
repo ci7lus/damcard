@@ -17,6 +17,7 @@ export type DIST = {
   name: string
   dam_id: string
   address: string
+  description: string
   is_weekend: boolean
   is_multi: boolean
   distance: string

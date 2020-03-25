@@ -151,10 +151,15 @@ const main = async () => {
           dsinformation
             .querySelectorAll("icons")
             .forEach((icons) => dsinformation.removeChild(icons))
-          const dsaddress = Array.from(dsinformation.childNodes)
+          const dsaddress = dsinformation.querySelector(".dsaddress")
+          if (!dsaddress) throw new Error("dsaddress not found")
+          const address = dsaddress.textContent!
+          dsinformation.removeChild(dsaddress)
+          const description = Array.from(dsinformation.childNodes)
             .map((node) => node.textContent!)
             .join("\n")
             .trim()
+            .replace(/\n\n/g, "\n")
 
           const dsposition = place.querySelector(".dsposition")
           if (!dsposition) throw new Error("dsposition not found")
@@ -173,7 +178,8 @@ const main = async () => {
           const dist: DIST = {
             id: dsid,
             dam_id: currentDam!.id,
-            address: dsaddress,
+            address,
+            description,
             is_weekend,
             is_multi,
             distance,
@@ -193,8 +199,8 @@ const main = async () => {
     }
   }
   if (!is_error) {
-    fs.writeFileSync("./src/assets/dams.json", JSON.stringify(dams))
-    fs.writeFileSync("./src/assets/dists.json", JSON.stringify(dists))
+    fs.writeFileSync("./src/assets/externals/dams.json", JSON.stringify(dams))
+    fs.writeFileSync("./src/assets/externals/dists.json", JSON.stringify(dists))
   }
 }
 main()

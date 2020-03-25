@@ -7,7 +7,6 @@ import { ScaleLoader } from "react-spinners"
 const dams_path = require("./assets/externals/dams.json")
 const dists_path = require("./assets/externals/dists.json")
 const kurobe_dam = require("./assets/images/kurobe_dam.png")
-const dam_card = require("./assets/images/dam_card.png")
 
 declare global {
   interface Window {
@@ -63,9 +62,6 @@ const App = () => {
       const loaded_dams: (DAM & {
         marker: google.maps.Marker
       })[] = []
-      const loaded_dists: (DIST & {
-        marker: google.maps.Marker
-      })[] = []
 
       // ポップアップウィンドウ初期化
       const infoWindow = new google.maps.InfoWindow({
@@ -96,33 +92,12 @@ const App = () => {
           dam.marker.setMap(map)
           dam.marker.setIcon({
             url: kurobe_dam,
-            scaledSize: new google.maps.Size(
-              markerSize + zoom / 2,
-              markerSize + zoom / 2
-            ),
+            scaledSize: new google.maps.Size(markerSize, markerSize),
           })
         }
         loaded_dams
           .filter((dam) => !target_dams.includes(dam))
           .map((dam) => dam.marker.setMap(null))
-
-        const target_dists = loaded_dists.filter(
-          (dist) =>
-            min_lat < dist.lat &&
-            dist.lat < max_lat &&
-            min_lng < dist.lng &&
-            dist.lng < max_lng
-        )
-        for (let dist of target_dists) {
-          dist.marker.setMap(map)
-          dist.marker.setIcon({
-            url: dam_card,
-            scaledSize: new google.maps.Size(markerSize, markerSize),
-          })
-        }
-        loaded_dists
-          .filter((dist) => !target_dists.includes(dist))
-          .map((dist) => dist.marker.setMap(null))
       }
 
       map.addListener("dragend", rerender)
@@ -130,6 +105,9 @@ const App = () => {
 
       const dams_req = await fetch(dams_path)
       const dams: DAM[] = await dams_req.json()
+
+      const dists_req = await fetch(dists_path)
+      const dists: DIST[] = await dists_req.json()
 
       for (let dam of dams) {
         const marker = new google.maps.Marker({
@@ -140,55 +118,16 @@ const App = () => {
           title: dam.name,
           zIndex: 50,
         })
+        const dam_dists = dists.filter((dist) => dist.dam_id === dam.id)
         marker.addListener("click", () => {
           infoWindow.setContent(
-            renderToStaticMarkup(
-              <PopupView
-                category={"ダム"}
-                name={dam.name}
-                url={dam.url}
-                is_distance={dam.is_distance}
-                is_close={dam.is_close}
-              />
-            )
+            renderToStaticMarkup(<PopupView dam={dam} dists={dam_dists} />)
           )
           infoWindow.open(map, marker)
         })
         loaded_dams.push({ ...dam, marker })
       }
       console.log("dam loaded", loaded_dams.length)
-
-      const dists_req = await fetch(dists_path)
-      const dists: DIST[] = await dists_req.json()
-
-      for (let dist of dists) {
-        const marker = new google.maps.Marker({
-          position: {
-            lat: dist.lat,
-            lng: dist.lng,
-          },
-          title: dist.name,
-          zIndex: 100,
-        })
-        marker.addListener("click", () => {
-          const dam = dams.find((dam) => dam.id === dist.dam_id)
-          infoWindow.setContent(
-            renderToStaticMarkup(
-              <PopupView
-                category={"配布所"}
-                name={dist.name}
-                description={dist.address}
-                is_multi={dist.is_multi}
-                is_weekend={dist.is_weekend}
-                dam_name={dam?.name}
-              />
-            )
-          )
-          infoWindow.open(map, marker)
-        })
-        loaded_dists.push({ ...dist, marker })
-      }
-      console.log("dist loaded", loaded_dists.length)
 
       while (true) {
         if (map.getBounds()) {
@@ -227,40 +166,18 @@ const App = () => {
 
 ReactDOM.render(<App />, document.getElementById("app"))
 
-const PopupView = ({
-  category,
-  name,
-  dam_name,
-  description,
-  url,
-  is_close,
-  is_distance,
-  is_multi,
-  is_weekend,
-}: {
-  category: string
-  name: string
-  dam_name?: string
-  description?: string | null
-  url?: string | null
-  is_close?: boolean
-  is_distance?: boolean
-  is_multi?: boolean
-  is_weekend?: boolean
-}) => {
+const PopupView = ({ dam, dists }: { dam: DAM; dists: DIST[] }) => {
   return (
     <div className="border-gray-200 border-2 p-1">
-      <div className="text-base">
-        {category}: {name}
-      </div>
+      <div className="text-base">{dam.name}</div>
       <div className="border-gray-200 border-2 my-1" />
       <div className="leading-relaxed text-sm">
         <ul className="list-disc list-inside mb-1 ml-2">
-          {url && (
+          {dam.url && (
             <li>
               <a
                 className="text-teal-600"
-                href={url}
+                href={dam.url}
                 target="_blank"
                 rel="noopener"
               >
@@ -268,15 +185,58 @@ const PopupView = ({
               </a>
             </li>
           )}
-          {dam_name && <li>ダム: {dam_name}</li>}
-          {is_close && <li>配布終了: {is_close ? "はい" : "いいえ"}</li>}
-          {is_multi && <li>複数のカードを配布</li>}
-          {is_distance && <li>ダムと配布場所が離れてます</li>}
-          {is_weekend && <li>土日祝日のいずれかに配布</li>}
+          <li>
+            位置:&nbsp;
+            <a
+              href={`https://maps.google.com/maps?q=${dam.lat},${dam.lng}&hl=ja`}
+              target="_blank"
+              rel="noopener"
+              className="text-teal-600"
+            >
+              {dam.lat}, {dam.lng}
+            </a>
+          </li>
+          {dam.is_close && <li>配布を終了している可能性があります</li>}
+          {dam.is_distance && <li>⚠️ ダムと配布場所が離れてます</li>}
         </ul>
-        <div className="whitespace-pre break-words overflow-auto">
-          {description?.replace(/\n\n/g, "\n")}
-        </div>
+        {dists.map((dist) => (
+          <div className="border-gray-200 border-2 p-1 mb-1" key={dist.id}>
+            <div className="text-base">{dist.name}</div>
+            <div className="border-gray-200 border-2 my-1" />
+            <div className="leading-relaxed text-sm">
+              <ul className="list-disc list-inside mb-1 ml-2">
+                {dam.url && (
+                  <li>
+                    <a
+                      className="text-teal-600"
+                      href={dam.url}
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      ウェブサイト
+                    </a>
+                  </li>
+                )}
+                <li>
+                  住所:&nbsp;
+                  <a
+                    href={`https://maps.google.com/maps?q=${dist.lat},${dist.lng}&hl=ja`}
+                    target="_blank"
+                    rel="noopener"
+                    className="text-teal-600"
+                  >
+                    {dist.address}
+                  </a>
+                </li>
+                {dist.is_weekend && <li>週末に配布しています</li>}
+                {dist.is_multi && <li>複数のカードを配っているらしいです</li>}
+              </ul>
+              <div className="whitespace-pre break-words overflow-auto">
+                {dist.description}
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   )
