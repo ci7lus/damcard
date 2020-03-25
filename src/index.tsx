@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import ReactDOM from "react-dom"
 import { GOOGLE_API_KEY } from "./config"
 import { DAM } from "./types"
@@ -12,6 +12,10 @@ declare global {
 }
 
 const App = () => {
+  const [height, setHeight] = useState("100vh")
+  const updateHeight = () => {
+    setHeight(`${window.innerHeight}px`)
+  }
   useEffect(() => {
     const initialize = async () => {
       await new Promise((res, rej) => {
@@ -35,6 +39,13 @@ const App = () => {
         center: { lat: 36.56678370175526, lng: 137.666148 },
         zoom: 10,
         gestureHandling: "greedy",
+      })
+
+      updateHeight()
+      window.addEventListener("resize", () => {
+        if (0.5 < Math.random()) {
+          updateHeight()
+        }
       })
 
       const loaded_dams: (DAM & { marker: google.maps.Marker })[] = []
@@ -105,9 +116,12 @@ const App = () => {
     initialize()
   }, [])
   return (
-    <div className="min-h-screen w-full flex flex-col">
+    <div
+      className="min-h-screen w-full flex flex-col"
+      style={{ minHeight: height }}
+    >
       <div className="flex-1" id="map"></div>
-      <div className="text-xs text-right absolute left-0 bottom-0 mb-6 ml-1 bg-gray-100">
+      <div className="text-xs text-right absolute left-0 bottom-0 mb-6 ml-1 bg-gray-100 pointer-events-none">
         <div>
           データソース:
           <a href="https://damcard.net/" target="_blank" rel="noopener">
