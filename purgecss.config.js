@@ -1,7 +1,7 @@
 module.exports = {
   mode: "postcss",
   content: ["./src/**/*.html", "./src/**/*.ts", "./src/**/*.tsx"],
-  whitelist: ["body", "html"],
+  whitelist: ["body", "html", "svg"],
   extractors: [
     {
       extensions: ["html", "ts", "tsx"],
