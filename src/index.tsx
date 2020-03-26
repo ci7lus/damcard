@@ -2,8 +2,10 @@ import React, { useEffect, useState } from "react"
 import ReactDOM from "react-dom"
 import { renderToStaticMarkup } from "react-dom/server"
 import { GOOGLE_API_KEY } from "./config"
-import { DAM, DIST } from "./types"
+import { DAM, DIST, STATUS } from "./types"
 import { ScaleLoader } from "react-spinners"
+import $ from "transform-ts"
+import localforage from "localforage"
 const dams_path = require("./assets/externals/dams.json")
 const dists_path = require("./assets/externals/dists.json")
 const kurobe_dam = require("./assets/images/kurobe_dam.png")
@@ -22,9 +24,41 @@ const App: React.FC<{}> = () => {
   }
   useEffect(() => {
     const initialize = async () => {
-      if ("serviceWorker" in navigator) {
-        const sw = await navigator.serviceWorker.register("/sw.js")
+      try {
+        if (
+          process.env.NODE_ENV === "production" &&
+          "serviceWorker" in navigator
+        ) {
+          await navigator.serviceWorker.register("/sw.js")
+        }
+      } catch (error) {
+        console.error(error)
       }
+
+      const preferenceStorage = localforage.createInstance({
+        name: process.env.npm_package_name,
+        storeName: "preference",
+      })
+
+      let status: STATUS = {
+        zoom: 10,
+        lat: 36.56678370175526,
+        lng: 137.666148,
+      }
+      try {
+        const s = await preferenceStorage.getItem("location_status")
+        if (s) {
+          const p = $.obj({
+            zoom: $.number,
+            lat: $.number,
+            lng: $.number,
+          }).transformOrThrow(s)
+          status = p
+        }
+      } catch (error) {
+        console.warn("ステータスデータのパースに失敗しました")
+      }
+
       // Google Map バンドルのロード
       await new Promise((res, rej) => {
         const script = document.createElement("script")
@@ -46,10 +80,10 @@ const App: React.FC<{}> = () => {
       // 地図の初期化
       const map = new google.maps.Map(document.getElementById("map")!, {
         center: {
-          lat: 36.56678370175526,
-          lng: 137.666148,
+          lat: status.lat,
+          lng: status.lng,
         },
-        zoom: 10,
+        zoom: status.zoom,
         gestureHandling: "greedy",
       })
 
@@ -74,6 +108,9 @@ const App: React.FC<{}> = () => {
       // 再描画
       const rerender = async () => {
         const zoom = map.getZoom()
+        const center = map.getCenter()
+        const lat = center.lat()
+        const lng = center.lng()
         const markerSize = Math.pow(zoom, 2) / 4
         const bounds = map.getBounds()!
         const sw = bounds.getSouthWest()
@@ -101,6 +138,13 @@ const App: React.FC<{}> = () => {
         loaded_dams
           .filter((dam) => !target_dams.includes(dam))
           .map((dam) => dam.marker.setMap(null))
+
+        const s: STATUS = {
+          zoom,
+          lat,
+          lng,
+        }
+        await preferenceStorage.setItem("location_status", s)
       }
 
       map.addListener("dragend", rerender)

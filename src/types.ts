@@ -24,3 +24,9 @@ export type DIST = {
   lat: number
   lng: number
 }
+
+export type STATUS = {
+  zoom: number
+  lat: number
+  lng: number
+}

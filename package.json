@@ -33,7 +33,7 @@
     "dev": "parcel src/index.html"
   },
   "dependencies": {
-    "@google/maps": "^1.1.0",
+    "localforage": "^1.7.3",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "transform-ts": "^0.3.0"
