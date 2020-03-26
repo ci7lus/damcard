@@ -6,6 +6,7 @@ import { DAM, DIST, STATUS } from "./types"
 import { ScaleLoader } from "react-spinners"
 import $ from "transform-ts"
 import localforage from "localforage"
+import { Menu, AlertOctagon, Calendar, MapPin, Link } from "react-feather"
 const dams_path = require("./assets/externals/dams.json")
 const dists_path = require("./assets/externals/dists.json")
 const kurobe_dam = require("./assets/images/kurobe_dam.png")
@@ -223,6 +224,8 @@ const PopupView: React.FC<{
         <ul className="list-disc list-inside mb-1 ml-2">
           {dam.url && (
             <li>
+              <Link className="inline" size={"1rem"} />
+              &nbsp;
               <a
                 className="text-teal-600"
                 href={dam.url}
@@ -234,7 +237,8 @@ const PopupView: React.FC<{
             </li>
           )}
           <li>
-            位置:&nbsp;
+            <MapPin className="inline" size={"1rem"} />
+            &nbsp;位置:&nbsp;
             <a
               href={`https://maps.google.com/maps?q=${dam.lat},${dam.lng}&hl=ja`}
               target="_blank"
@@ -244,8 +248,18 @@ const PopupView: React.FC<{
               {dam.lat}, {dam.lng}
             </a>
           </li>
-          {dam.is_close && <li>⚠️ 配布終了可能性あり</li>}
-          {dam.is_distance && <li>⚠️ 遠距離</li>}
+          {dam.is_close && (
+            <li>
+              <AlertOctagon className="inline" size={"1rem"} />
+              &nbsp; 配布終了可能性あり
+            </li>
+          )}
+          {dam.is_distance && (
+            <li>
+              <AlertOctagon className="inline" size={"1rem"} />
+              &nbsp;遠距離
+            </li>
+          )}
         </ul>
         {dists.map((dist) => (
           <details className="border-gray-200 border-2 p-1 mb-1" key={dist.id}>
@@ -257,6 +271,8 @@ const PopupView: React.FC<{
               <ul className="list-disc list-inside mb-1 ml-2">
                 {dam.url && (
                   <li>
+                    <Link className="inline" size={"1rem"} />
+                    &nbsp;
                     <a
                       className="text-teal-600"
                       href={dam.url}
@@ -268,7 +284,8 @@ const PopupView: React.FC<{
                   </li>
                 )}
                 <li>
-                  住所:&nbsp;
+                  <MapPin className="inline" size={"1rem"} />
+                  &nbsp;住所:&nbsp;
                   <a
                     href={`https://maps.google.com/maps?q=${dist.lat},${dist.lng}&hl=ja`}
                     target="_blank"
@@ -278,8 +295,18 @@ const PopupView: React.FC<{
                     {dist.address}
                   </a>
                 </li>
-                {dist.is_weekend && <li>週末配布</li>}
-                {dist.is_multi && <li>複数のダムカード</li>}
+                {dist.is_weekend && (
+                  <li>
+                    <Calendar className="inline" size={"1rem"} />
+                    &nbsp;週末配布
+                  </li>
+                )}
+                {dist.is_multi && (
+                  <li>
+                    <Menu className="inline" size={"1rem"} />
+                    &nbsp;複数のダムカード
+                  </li>
+                )}
               </ul>
               <div className="whitespace-pre break-words overflow-auto">
                 {dist.description}
