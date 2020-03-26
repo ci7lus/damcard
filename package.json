@@ -41,7 +41,7 @@
   },
   "description": "ダムカードマップ",
   "pwaManifest": {
-    "name": "damcard",
+    "name": "ダムカードマップ",
     "shortName": "damcard",
     "startURL": "./",
     "generateIconOptions": {
@@ -60,9 +60,10 @@
   },
   "cache": {
     "strategy": "default",
-    "clearDist": false,
+    "clearDist": true,
+    "globDirectory": "./dist",
     "globPatterns": [
-      "**/*.{html,js,css,jpg,png,json}"
+      "**/*.{js,css,jpg,png,json}"
     ]
   }
 }
