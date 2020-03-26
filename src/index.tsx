@@ -244,8 +244,8 @@ const PopupView: React.FC<{
               {dam.lat}, {dam.lng}
             </a>
           </li>
-          {dam.is_close && <li>配布を終了している可能性があります</li>}
-          {dam.is_distance && <li>⚠️ ダムと配布場所が離れてます</li>}
+          {dam.is_close && <li>⚠️ 配布終了可能性あり</li>}
+          {dam.is_distance && <li>⚠️ 遠距離</li>}
         </ul>
         {dists.map((dist) => (
           <details className="border-gray-200 border-2 p-1 mb-1" key={dist.id}>
@@ -278,8 +278,8 @@ const PopupView: React.FC<{
                     {dist.address}
                   </a>
                 </li>
-                {dist.is_weekend && <li>週末に配布しています</li>}
-                {dist.is_multi && <li>複数のカードを配っているらしいです</li>}
+                {dist.is_weekend && <li>週末配布</li>}
+                {dist.is_multi && <li>複数のダムカード</li>}
               </ul>
               <div className="whitespace-pre break-words overflow-auto">
                 {dist.description}
