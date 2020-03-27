@@ -159,7 +159,7 @@ const main = async () => {
             .map((node) => node.textContent!)
             .join("\n")
             .trim()
-            .replace(/\n\n/g, "\n")
+            .replace(/\n+/g, "\n")
 
           const dsposition = place.querySelector(".dsposition")
           if (!dsposition) throw new Error("dsposition not found")
