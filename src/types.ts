@@ -30,3 +30,5 @@ export type STATUS = {
   lat: number
   lng: number
 }
+
+export type ExtendDam = DAM & { dists: DIST[] }

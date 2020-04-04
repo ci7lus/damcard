@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react"
 import ReactDOM from "react-dom"
-import { renderToStaticMarkup } from "react-dom/server"
 import { GOOGLE_API_KEY } from "./config"
-import { DAM, DIST, STATUS } from "./types"
+import { DAM, DIST, STATUS, ExtendDam } from "./types"
 import { ScaleLoader } from "react-spinners"
 import $ from "transform-ts"
 import localforage from "localforage"
-import { Menu, AlertOctagon, Calendar, MapPin, Link } from "react-feather"
+import { Popup } from "./components/popup"
 const dams_path = require("./assets/externals/dams.json")
 const dists_path = require("./assets/externals/dists.json")
 const kurobe_dam = require("./assets/images/kurobe_dam.png")
@@ -20,6 +19,7 @@ declare global {
 const App: React.FC<{}> = () => {
   const [loading, setLoading] = useState(true)
   const [height, setHeight] = useState("100vh")
+  const [popup, setPopup] = useState(null as null | ExtendDam)
   const updateHeight = () => {
     setHeight(`${window.innerHeight}px`)
   }
@@ -101,11 +101,6 @@ const App: React.FC<{}> = () => {
         marker: google.maps.Marker
       })[] = []
 
-      // ポップアップウィンドウ初期化
-      const infoWindow = new google.maps.InfoWindow({
-        content: "",
-      })
-
       // 再描画
       const rerender = async () => {
         const zoom = map.getZoom()
@@ -168,10 +163,7 @@ const App: React.FC<{}> = () => {
         })
         const dam_dists = dists.filter((dist) => dist.dam_id === dam.id)
         marker.addListener("click", () => {
-          infoWindow.setContent(
-            renderToStaticMarkup(<PopupView dam={dam} dists={dam_dists} />)
-          )
-          infoWindow.open(map, marker)
+          setPopup({ ...dam, dists: dam_dists })
         })
         loaded_dams.push({ ...dam, marker })
       }
@@ -200,120 +192,32 @@ const App: React.FC<{}> = () => {
       <div className="absolute right-0 top-0 m-8 pointer-events-none">
         <ScaleLoader color={"#4fd1c5"} loading={loading} />
       </div>
-      <div className="text-xs text-right absolute left-0 bottom-0 mb-6 ml-1 bg-gray-100">
+      {popup && (
+        <div
+          className="fixed left-0 top-0 w-full h-screen flex items-center justify-center z-20"
+          style={{ height: height }}
+        >
+          <div
+            className="absolute left-0 top-0 w-full h-full bg-black opacity-25"
+            onClick={() => {
+              setPopup(null)
+            }}
+          />
+          <div
+            className="container min-w-screen-md max-w-screen-md m-4 p-4 relative z-30 bg-white text-gray-700 rounded-sm overflow-auto"
+            style={{ height: `calc(${height} - 6rem)` }}
+          >
+            <Popup dam={popup} />
+          </div>
+        </div>
+      )}
+      <div className="text-xs text-right absolute left-0 bottom-0 mb-6 ml-1 bg-gray-100 z-10">
         <div>
           データソース:&nbsp;
           <a href="https://damcard.net/" target="_blank" rel="noopener">
             ダムこれ！
           </a>
         </div>
-      </div>
-    </div>
-  )
-}
-
-const PopupView: React.FC<{
-  dam: DAM
-  dists: DIST[]
-}> = ({ dam, dists }: { dam: DAM; dists: DIST[] }) => {
-  return (
-    <div className="border-gray-200 border-2 p-1">
-      <div className="text-base">{dam.name}</div>
-      <div className="border-gray-200 border-2 my-1" />
-      <div className="leading-relaxed text-sm">
-        <ul className="list-disc list-inside mb-1 ml-2">
-          {dam.url && (
-            <li>
-              <Link className="inline" size={"1rem"} />
-              &nbsp;
-              <a
-                className="text-teal-600"
-                href={dam.url}
-                target="_blank"
-                rel="noopener"
-              >
-                ウェブサイト
-              </a>
-            </li>
-          )}
-          <li>
-            <MapPin className="inline" size={"1rem"} />
-            &nbsp;位置:&nbsp;
-            <a
-              href={`https://maps.google.com/maps?q=${dam.lat},${dam.lng}&hl=ja`}
-              target="_blank"
-              rel="noopener"
-              className="text-teal-600"
-            >
-              {dam.lat}, {dam.lng}
-            </a>
-          </li>
-          {dam.is_close && (
-            <li>
-              <AlertOctagon className="inline" size={"1rem"} />
-              &nbsp; 配布終了可能性あり
-            </li>
-          )}
-          {dam.is_distance && (
-            <li>
-              <AlertOctagon className="inline" size={"1rem"} />
-              &nbsp;遠距離
-            </li>
-          )}
-        </ul>
-        {dists.map((dist) => (
-          <details className="border-gray-200 border-2 p-1 mb-1" key={dist.id}>
-            <summary>
-              <span className="text-base">{dist.name}</span>
-            </summary>
-            <div className="border-gray-200 border-2 my-1" />
-            <div className="leading-relaxed text-sm">
-              <ul className="list-disc list-inside mb-1 ml-2">
-                {dam.url && (
-                  <li>
-                    <Link className="inline" size={"1rem"} />
-                    &nbsp;
-                    <a
-                      className="text-teal-600"
-                      href={dam.url}
-                      target="_blank"
-                      rel="noopener"
-                    >
-                      ウェブサイト
-                    </a>
-                  </li>
-                )}
-                <li>
-                  <MapPin className="inline" size={"1rem"} />
-                  &nbsp;住所:&nbsp;
-                  <a
-                    href={`https://maps.google.com/maps?q=${dist.lat},${dist.lng}&hl=ja`}
-                    target="_blank"
-                    rel="noopener"
-                    className="text-teal-600"
-                  >
-                    {dist.address}
-                  </a>
-                </li>
-                {dist.is_weekend && (
-                  <li>
-                    <Calendar className="inline" size={"1rem"} />
-                    &nbsp;週末配布
-                  </li>
-                )}
-                {dist.is_multi && (
-                  <li>
-                    <Menu className="inline" size={"1rem"} />
-                    &nbsp;複数のダムカード
-                  </li>
-                )}
-              </ul>
-              <div className="whitespace-pre break-words overflow-auto">
-                {dist.description}
-              </div>
-            </div>
-          </details>
-        ))}
       </div>
     </div>
   )
